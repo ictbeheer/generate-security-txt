@@ -92,3 +92,31 @@ function generate_security_txt_run() {
 
 }
 generate_security_txt_run();
+
+
+// 1. Register custom rewrite rules for security.txt
+add_action('init', function () {
+	add_rewrite_rule('^\.well-known/security\.txt$', 'index.php?security_txt=1', 'top');
+	add_rewrite_rule('^security\.txt$', 'index.php?security_txt=1', 'top');
+});
+
+// 2. Whitelist the query variable so WordPress recognizes it
+add_filter('query_vars', function ($vars) {
+	$vars[] = 'security_txt';
+
+	return $vars;
+});
+
+// 3. Detect the request and handle the output dynamically
+add_action('template_redirect', function () {
+	if (get_query_var('security_txt')) {
+		header('Content-Type: text/plain; charset=utf-8');
+
+		// Replace this with your actual security.txt content
+		echo "Contact: mailto:security@yourdomain.com\n";
+		echo "Expires: 2027-01-01T00:00:00.000Z\n";
+		echo "Preferred-Languages: en\n";
+
+		exit;
+	}
+});
